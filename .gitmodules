@@ -1,0 +1,3 @@
+[submodule "pynium/pynium"]
+	path = pynium/pynium
+	url = https://github.com/rikitaro3/pynium.git
