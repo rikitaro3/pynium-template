@@ -1,1 +1,2 @@
-# daniel-jiro
+# pynium-template
+pyniumをサブモジュールとして直ぐに利用できるようにしたテンプレートプロジェクト
