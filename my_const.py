@@ -1,5 +1,4 @@
-# BASE_URL = "http://localhost:8080"
-BASE_URL = "https://web101.rsv.ws-scs.jp/web/index.jsp"
+BASE_URL = "http://localhost:8080"
 
 # IDs
 ID = "user01"

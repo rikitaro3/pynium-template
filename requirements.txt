@@ -1,0 +1,6 @@
+selenium
+beautifulsoup4
+webdriver_manager>=4.0.1
+pyautogui
+pynput
+schedule

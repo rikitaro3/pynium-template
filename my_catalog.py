@@ -1,5 +1,5 @@
-from pynium.lib.case import Case
-from pynium.lib.operation import Click, Get, Screenshot, Submit, Input, SelectBox
+from lib.case import Case
+from lib.operation import Click, Get, Screenshot, Submit, Input, SelectBox
 
 import my_const as const
 

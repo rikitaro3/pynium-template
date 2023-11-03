@@ -1,2 +1,4 @@
 # pynium-template
-pyniumをサブモジュールとして参照しているテンプレートリポジトリ
+
+python+Seleniumを簡単に使えるようにラッピングしたもの
+
