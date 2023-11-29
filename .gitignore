@@ -6,3 +6,4 @@ temp/
 
 # keep
 !screenshot/.gitkeep
+!temp/.gitkeep
