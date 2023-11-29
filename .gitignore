@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 screenshot/
+temp/
 
 # keep
 !screenshot/.gitkeep
