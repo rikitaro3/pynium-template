@@ -77,6 +77,7 @@ class Input(Operation):
         # element = wait.until(EC.presence_of_element_located((By.XPATH, self.xpath)))
         element.send_keys(self.value)
 
+
 class SelectBox(Operation):
     def __init__(self, driver, xpath, value):
         super().__init__(driver)
@@ -89,7 +90,8 @@ class SelectBox(Operation):
             EC.presence_of_element_located((By.XPATH, self.xpath)))
         select = Select(element)
         select.select_by_visible_text(self.value)
-        
+
+
 class DownloadHTML(Operation):
     def __init__(self, driver, filename):
         super().__init__(driver)
