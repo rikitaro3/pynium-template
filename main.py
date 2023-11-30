@@ -14,4 +14,5 @@ def main():
     login_case.exec_operation()
 
 
-main()
+if __name__ == "__main__":
+    main()
