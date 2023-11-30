@@ -4,3 +4,7 @@ webdriver_manager>=4.0.1
 pyautogui
 pynput
 schedule
+gspread
+oauth2client
+
+

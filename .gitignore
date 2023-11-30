@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 screenshot/
 temp/
+client_secret.json
 
 # keep
 !screenshot/.gitkeep
