@@ -18,7 +18,7 @@ class Get(Operation):
         self.url = url
 
     def exec(self):
-        print("Get: " + self.url)
+        print("Executing Get: " + self.url)
         self.driver.get(self.url)
 
 
@@ -28,6 +28,7 @@ class Screenshot(Operation):
         self.title = title
 
     def exec(self):
+        print("Executing Screenshot: " + self.title)
         Util.take_screenshot(self.driver, self.title)
 
 
@@ -37,6 +38,7 @@ class Click(Operation):
         self.xpath = xpath
 
     def exec(self):
+        print("Executing Click: " + self.xpath)
         wait = WebDriverWait(self.driver, 10)
         try:
             element = wait.until(
@@ -55,6 +57,7 @@ class Submit(Operation):
         self.xpath = xpath
 
     def exec(self):
+        print("Executing Submit: " + self.xpath)
         wait = WebDriverWait(self.driver, 10)
         element = wait.until(
             EC.presence_of_element_located((By.XPATH, self.xpath)))
@@ -68,13 +71,10 @@ class Input(Operation):
         self.value = value
 
     def exec(self):
-        # element = self.driver.find_element(By.XPATH, self.xpath)
-        # element.send_keys(self.value)
-
+        print("Executing Input: " + self.xpath)
         wait = WebDriverWait(self.driver, 10)
         element = wait.until(
             EC.visibility_of_element_located((By.XPATH, self.xpath)))
-        # element = wait.until(EC.presence_of_element_located((By.XPATH, self.xpath)))
         element.send_keys(self.value)
 
 
@@ -85,6 +85,7 @@ class SelectBox(Operation):
         self.value = value
 
     def exec(self):
+        print("Executing SelectBox: " + self.xpath)
         wait = WebDriverWait(self.driver, 10)
         element = wait.until(
             EC.presence_of_element_located((By.XPATH, self.xpath)))
@@ -98,7 +99,8 @@ class DownloadHTML(Operation):
         self.filename = filename
 
     def exec(self):
+        print("Executing DownloadHTML: " + self.filename)
         html = self.driver.page_source
         os.makedirs('temp', exist_ok=True)  # ディレクトリが存在しない場合にディレクトリを作成
-        with open(os.path.join('temp', self.filename), 'w') as f:
+        with open(os.path.join('temp', self.filename), 'w', encoding='utf-8') as f:
             f.write(html)
