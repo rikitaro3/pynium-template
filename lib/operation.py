@@ -99,5 +99,6 @@ class DownloadHTML(Operation):
 
     def exec(self):
         html = self.driver.page_source
+        os.makedirs('temp', exist_ok=True)  # ディレクトリが存在しない場合にディレクトリを作成
         with open(os.path.join('temp', self.filename), 'w') as f:
             f.write(html)
