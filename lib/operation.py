@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
+import os
 
 from lib.e2e_util import Util
 
@@ -76,7 +77,6 @@ class Input(Operation):
         # element = wait.until(EC.presence_of_element_located((By.XPATH, self.xpath)))
         element.send_keys(self.value)
 
-
 class SelectBox(Operation):
     def __init__(self, driver, xpath, value):
         super().__init__(driver)
@@ -89,3 +89,13 @@ class SelectBox(Operation):
             EC.presence_of_element_located((By.XPATH, self.xpath)))
         select = Select(element)
         select.select_by_visible_text(self.value)
+        
+class DownloadHTML(Operation):
+    def __init__(self, driver, filename):
+        super().__init__(driver)
+        self.filename = filename
+
+    def exec(self):
+        html = self.driver.page_source
+        with open(os.path.join('temp', self.filename), 'w') as f:
+            f.write(html)
