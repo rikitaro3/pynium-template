@@ -14,9 +14,9 @@ def main():
         DownloadHTML(driver, "example.html")
     )
     login_case.exec_operation()
-    
+
+    # スプレッドシートに出力
     writer = SpreadsheetWriter('client_secret.json', 'sample')
-    # スプレッドシートにデータを出力
     writer.write([])
 
 
