@@ -104,3 +104,13 @@ class DownloadHTML(Operation):
         os.makedirs('temp', exist_ok=True)  # ディレクトリが存在しない場合にディレクトリを作成
         with open(os.path.join('temp', self.filename), 'w', encoding='utf-8') as f:
             f.write(html)
+
+
+class ExecuteJS(Operation):
+    def __init__(self, driver, script):
+        super().__init__(driver)
+        self.script = script
+
+    def exec(self):
+        print("Executing JavaScript: " + self.script)
+        self.driver.execute_script(self.script)
