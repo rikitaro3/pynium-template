@@ -114,3 +114,16 @@ class ExecuteJS(Operation):
     def exec(self):
         print("Executing JavaScript: " + self.script)
         self.driver.execute_script(self.script)
+
+
+class ClickUntilNotFound(Click):
+    def exec(self):
+        print("Executing ClickUntilNotFound: " + self.xpath)
+        wait = WebDriverWait(self.driver, 10)
+        while True:
+            try:
+                element = wait.until(
+                    EC.presence_of_element_located((By.XPATH, self.xpath)))
+                element.click()
+            except:
+                break
