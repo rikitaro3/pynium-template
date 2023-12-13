@@ -123,7 +123,7 @@ class SpreadsheetWriter:
         :param email_address: 共有するユーザーのメールアドレス
         """
         drive_service = build('drive', 'v3', credentials=self.creds)
-        file_id = self.sheet.spreadsheet_id  # スプレッドシートのIDを取得
+        file_id = self.sheet.spreadsheet.spreadsheet_id  # スプレッドシートのIDを取得
         def_permission = {
             'type': 'user',
             'role': 'reader',  # 'reader', 'writer', 'commenter', 'owner'から選択
