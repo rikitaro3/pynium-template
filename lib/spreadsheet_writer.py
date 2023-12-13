@@ -2,7 +2,6 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
 
 
 class SpreadsheetWriter:
@@ -116,3 +115,25 @@ class SpreadsheetWriter:
                                                     fields='id').execute()
                 folder_id = file.get('id')
         return folder_id
+
+    def share_with_user(self, email_address):
+        """
+        スプレッドシートを指定したユーザーと共有する。
+
+        :param email_address: 共有するユーザーのメールアドレス
+        """
+        drive_service = build('drive', 'v3', credentials=self.creds)
+        file_id = self.sheet.spreadsheet_id  # スプレッドシートのIDを取得
+        def_permission = {
+            'type': 'user',
+            'role': 'reader',  # 'reader', 'writer', 'commenter', 'owner'から選択
+            'emailAddress': email_address
+        }
+        try:
+            drive_service.permissions().create(
+                fileId=file_id,
+                body=def_permission
+            ).execute()
+            print(f'Successfully shared the spreadsheet with {email_address}')
+        except HttpError as error:
+            print(f'An error occurred: {error}')
