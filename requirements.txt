@@ -6,3 +6,6 @@ pynput
 schedule
 gspread
 oauth2client
+google-api-python-client
+oauth2client
+jpholiday

@@ -123,7 +123,7 @@ class SpreadsheetWriter:
         :param email_address: 共有するユーザーのメールアドレス
         """
         drive_service = build('drive', 'v3', credentials=self.creds)
-        file_id = self.sheet.spreadsheet.spreadsheet_id  # スプレッドシートのIDを取得
+        file_id = self.sheet.spreadsheet.id  # スプレッドシートのIDを取得
         def_permission = {
             'type': 'user',
             'role': 'reader',  # 'reader', 'writer', 'commenter', 'owner'から選択
@@ -137,3 +137,90 @@ class SpreadsheetWriter:
             print(f'Successfully shared the spreadsheet with {email_address}')
         except HttpError as error:
             print(f'An error occurred: {error}')
+
+    def share_with_anyone_with_link(self):
+        """
+        スプレッドシートをリンクを知っている人全員と共有し、そのURLを返す。
+
+        :return: スプレッドシートのURL
+        """
+        drive_service = build('drive', 'v3', credentials=self.creds)
+        file_id = self.sheet.spreadsheet.id  # スプレッドシートのIDを取得
+        def_permission = {
+            'type': 'anyone',
+            'role': 'writer',  # 'reader', 'writer', 'commenter'から選択
+        }
+        try:
+            drive_service.permissions().create(
+                fileId=file_id,
+                body=def_permission
+            ).execute()
+            print(f'Successfully shared the spreadsheet with anyone who has the link.')
+            return f'https://docs.google.com/spreadsheets/d/{file_id}'
+        except HttpError as error:
+            print(f'An error occurred: {error}')
+
+    def delete_spreadsheet(self, spreadsheet_name):
+        """
+        スプレッドシートを削除する。
+
+        :param spreadsheet_name: 削除するスプレッドシート名
+        """
+        drive_service = build('drive', 'v3', credentials=self.creds)
+        response = drive_service.files().list(q=f"name='{spreadsheet_name}' and mimeType='application/vnd.google-apps.spreadsheet'",
+                                              spaces='drive',
+                                              fields='nextPageToken, files(id, name)').execute()
+        for file in response.get('files', []):
+            try:
+                drive_service.files().delete(fileId=file.get('id')).execute()
+            except HttpError as error:
+                print(f'An error occurred: {error}')
+
+    def delete_folder(self, folder_name):
+        """
+        フォルダを削除する。
+
+        :param folder_name: 削除するフォルダ名
+        """
+        drive_service = build('drive', 'v3', credentials=self.creds)
+        response = drive_service.files().list(q=f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'",
+                                              spaces='drive',
+                                              fields='nextPageToken, files(id, name)').execute()
+        for file in response.get('files', []):
+            try:
+                drive_service.files().delete(fileId=file.get('id')).execute()
+            except HttpError as error:
+                print(f'An error occurred: {error}')
+                
+    def delete_all_spreadsheets(self):
+        """
+        すべてのスプレッドシートを削除する。
+        """
+        drive_service = build('drive', 'v3', credentials=self.creds)
+        response = drive_service.files().list(q="mimeType='application/vnd.google-apps.spreadsheet'",
+                                            spaces='drive',
+                                            fields='nextPageToken, files(id, name)').execute()
+        for file in response.get('files', []):
+            try:
+                drive_service.files().delete(fileId=file.get('id')).execute()
+            except HttpError as error:
+                print(f'An error occurred: {error}')
+
+    def delete_all_folders(self):
+        """
+        すべてのフォルダを削除する。
+        """
+        drive_service = build('drive', 'v3', credentials=self.creds)
+        response = drive_service.files().list(q="mimeType='application/vnd.google-apps.folder'",
+                                            spaces='drive',
+                                            fields='nextPageToken, files(id, name)').execute()
+        for file in response.get('files', []):
+            try:
+                drive_service.files().delete(fileId=file.get('id')).execute()
+            except HttpError as error:
+                print(f'An error occurred: {error}')
+                
+if __name__ == "__main__":
+    writer = SpreadsheetWriter('client_secret.json', 'your_spreadsheet_name')
+    # writer.delete_all_spreadsheets()
+    # writer.delete_all_folders()
