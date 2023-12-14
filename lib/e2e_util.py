@@ -46,6 +46,8 @@ class Util:
             # headlessオプション設定
             if is_headless:
                 chrome_options.add_argument('--headless')
+                chrome_options.add_argument('--no-sandbox') # for docker
+                chrome_options.add_argument('--disable-dev-shm-usage') # for docker
 
             # ケース完了時にブラウザを閉じない
             chrome_options.add_experimental_option("detach", True)
