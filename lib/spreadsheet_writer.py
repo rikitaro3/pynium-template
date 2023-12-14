@@ -191,15 +191,15 @@ class SpreadsheetWriter:
                 drive_service.files().delete(fileId=file.get('id')).execute()
             except HttpError as error:
                 print(f'An error occurred: {error}')
-                
+
     def delete_all_spreadsheets(self):
         """
         すべてのスプレッドシートを削除する。
         """
         drive_service = build('drive', 'v3', credentials=self.creds)
         response = drive_service.files().list(q="mimeType='application/vnd.google-apps.spreadsheet'",
-                                            spaces='drive',
-                                            fields='nextPageToken, files(id, name)').execute()
+                                              spaces='drive',
+                                              fields='nextPageToken, files(id, name)').execute()
         for file in response.get('files', []):
             try:
                 drive_service.files().delete(fileId=file.get('id')).execute()
@@ -212,14 +212,15 @@ class SpreadsheetWriter:
         """
         drive_service = build('drive', 'v3', credentials=self.creds)
         response = drive_service.files().list(q="mimeType='application/vnd.google-apps.folder'",
-                                            spaces='drive',
-                                            fields='nextPageToken, files(id, name)').execute()
+                                              spaces='drive',
+                                              fields='nextPageToken, files(id, name)').execute()
         for file in response.get('files', []):
             try:
                 drive_service.files().delete(fileId=file.get('id')).execute()
             except HttpError as error:
                 print(f'An error occurred: {error}')
-                
+
+
 if __name__ == "__main__":
     writer = SpreadsheetWriter('client_secret.json', 'your_spreadsheet_name')
     # writer.delete_all_spreadsheets()
