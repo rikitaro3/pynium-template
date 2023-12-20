@@ -1,7 +1,7 @@
 import threading
 
 from lib.scheduler import Scheduler
-from site.my_scraper import MyScraper
+from my_site.my_scraper import MyScraper
 
 
 def main():
