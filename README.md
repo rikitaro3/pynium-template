@@ -4,18 +4,18 @@ python+Seleniumを簡単に使えるようにラッピングしたもの
 
 ```mermaid
 classDiagram
-    main -- Scheduler :
-    Scheduler -- Scraper :
+    main -- Scheduler : 
+    Scheduler -- Scraper : 
     Scraper <|-- MyScraper : 継承
     MyScraper <|-- MyScraper1 : 継承
     MyScraper <|-- MyScraper2 : 継承
-    MinatoTennisScraper -- Case :
-    TokyoTennisScraper -- Case :
-    Case -- Operation :
+    MyScraper1 -- Case : 
+    MyScraper2 -- Case : 
+    Case -- Operation : 
     Operation <|-- Click : 継承
 ```
 
-# 機能とかとか
+# 機能とか
 * マルチスレッド実行に対応
 * クリック、セレクトボック等々のブラウザ操作をラッピング
 * スクショ、HTML保存、スマホサイズでの実行等をUtil化
