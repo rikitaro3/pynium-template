@@ -6,6 +6,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
+from bs4 import BeautifulSoup
+from oauth2client.service_account import ServiceAccountCredentials
+from googleapiclient.discovery import build
+import os
 
 # mobile device setting
 # USE_MOBILE_DEVICE = "iPhone SE"
@@ -14,10 +18,8 @@ USE_MOBILE_DEVICE = "iPhone XR"
 # output path
 SCREENSHOT_DIR = "screenshot/"
 
-class Util:
 
-    def __init__(self):
-        pass
+class Util:
 
     @staticmethod
     def create_driver(is_chrome, is_headless=False):
@@ -46,8 +48,9 @@ class Util:
             # headlessオプション設定
             if is_headless:
                 chrome_options.add_argument('--headless')
-                chrome_options.add_argument('--no-sandbox') # for docker
-                chrome_options.add_argument('--disable-dev-shm-usage') # for docker
+                chrome_options.add_argument('--no-sandbox')  # for docker
+                chrome_options.add_argument(
+                    '--disable-dev-shm-usage')  # for docker
 
             # ケース完了時にブラウザを閉じない
             chrome_options.add_experimental_option("detach", True)
@@ -101,3 +104,57 @@ class Util:
         for parameter in parameters:
             converted_url = converted_url.replaceFirst('\\{.*?\\}', parameter)
         return converted_url
+
+    @staticmethod
+    def save_formatted_html(html, file_name):
+        # BeautifulSoupオブジェクトを作成
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # フォーマットされたHTMLを保存
+        formatted_html = soup.prettify()
+
+        # tempフォルダが存在しない場合は作成
+        os.makedirs('temp', exist_ok=True)
+
+        with open(os.path.join('temp', file_name), 'w', encoding='utf-8') as f:
+            f.write(formatted_html)
+
+    @staticmethod
+    def validate_json_keyfile(json_keyfile_name):
+        """_summary_
+        googleのapiやcredentialのvalidateメソッド
+
+        Args:
+            json_keyfile_name (_type_): _description_
+            
+        Usage:
+            from lib.e2e_util import Util
+
+            # JSONキーファイル名を指定して関数を呼び出す
+            Util.validate_json_keyfile('client_secret.json')
+        
+        """
+
+        try:
+            # スコープを設定
+            scope = ['https://www.googleapis.com/auth/drive']
+
+            # 認証情報を取得
+            creds = ServiceAccountCredentials.from_json_keyfile_name(
+                json_keyfile_name, scope)
+
+            # Google Driveサービスを作成
+            drive_service = build('drive', 'v3', credentials=creds)
+
+            # Google Driveのファイルリストを取得
+            results = drive_service.files().list(pageSize=10).execute()
+            items = results.get('files', [])
+
+            print('Your client_secret.json is valid.')
+            print('Files in your Google Drive:')
+            for item in items:
+                print(f'{item["name"]} ({item["id"]})')
+
+        except Exception as e:
+            print('Your client_secret.json is not valid.')
+            print('Error:', e)

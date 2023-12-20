@@ -44,11 +44,13 @@ class Click(Operation):
             element = wait.until(
                 EC.presence_of_element_located((By.XPATH, self.xpath)))
             element.click()
-        except:
-            # 画面をelementまでスクロールする
-            self.driver.execute_script(
-                "arguments[0].scrollIntoView(true);", element)
-            element.click()
+        except Exception as e:
+            try:
+                self.driver.execute_script(
+                    "arguments[0].scrollIntoView(true);", element)
+                element.click()
+            except Exception as e:
+                print("elements not found")
 
 
 class Submit(Operation):
@@ -119,11 +121,39 @@ class ExecuteJS(Operation):
 class ClickUntilNotFound(Click):
     def exec(self):
         print("Executing ClickUntilNotFound: " + self.xpath)
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.driver, 3)
         while True:
             try:
                 element = wait.until(
                     EC.presence_of_element_located((By.XPATH, self.xpath)))
                 element.click()
-            except:
-                break
+            except Exception as e:
+                try:
+                    # 要素が見つからない場合、スクロールしてから再度クリックを試みる
+                    self.driver.execute_script(
+                        "arguments[0].scrollIntoView(true);", element)
+                    element.click()
+                except Exception as e:
+                    # スクロールしても要素が見つからない場合、ループを終了
+                    print("No more elements found, stopping.")
+                    break
+
+
+class SwitchToFrame(Operation):
+    def __init__(self, driver, reference_type, frame_reference=None):
+        super().__init__(driver)
+        self.frame_reference = frame_reference
+        self.reference_type = reference_type
+
+    def exec(self):
+        print("Switching to frame: " + str(self.frame_reference))
+        if self.reference_type == 'index':
+            if self.frame_reference is None:
+                raise ValueError(
+                    "frame_reference must be provided when reference_type is 'index'.")
+            self.driver.switch_to.frame(int(self.frame_reference))
+        elif self.reference_type == 'parent':
+            self.driver.switch_to.parent_frame()
+        else:
+            raise ValueError(
+                "Invalid reference_type. It should be either 'index' or 'parent'.")

@@ -1,6 +1,7 @@
 import time
 from lib.operation import Operation
 
+
 class Case:
 
     def __init__(self, *args):
@@ -15,5 +16,5 @@ class Case:
 
     def exec_operation(self):
         for operation in self.operations:
-            time.sleep(3)  # FIXME: O_o
+            time.sleep(1)  # FIXME: O_o
             operation.exec()
