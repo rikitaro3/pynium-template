@@ -1,5 +1,5 @@
 from lib.case import Case
-from lib.operation import Click, Get, Screenshot, Submit, Input, SelectBox, DownloadHTML
+from lib.operation import Click, Get, Screenshot, Submit, Input, SelectBox, DownloadHTML, ExecuteJS, ClickUntilNotFound, SwitchToFrame
 
 import my_const as const
 

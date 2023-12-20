@@ -1,23 +1,28 @@
-from lib.case import Case
-from lib.e2e_util import Util
-from lib.spreadsheet_writer import SpreadsheetWriter
-from lib.operation import Click, Get, Screenshot, Submit, Input, SelectBox, Select, DownloadHTML
+import threading
 
-import my_const as const
-from my_catalog import Catalog
+from lib.scheduler import Scheduler
+from site.my_scraper import MyScraper
 
 
 def main():
-    driver = Util.create_driver(True, False)
-    login_case = Case(
-        Get(driver, const.BASE_URL),
-        DownloadHTML(driver, "example.html")
-    )
-    login_case.exec_operation()
+    # スクレイパーのインスタンスを作成
+    scraper1 = MyScraper() # ※自身のプロジェクトではMyScraperを継承したクラスをインスタンス化する
+    scraper2 = MyScraper()
 
-    # スプレッドシートに出力
-    writer = SpreadsheetWriter('client_secret.json', 'sample')
-    writer.write([])
+    # スケジューラーのインスタンスを作成
+    scheduler1 = Scheduler(5, scraper1)
+    scheduler2 = Scheduler(10, scraper2)
+
+    # スケジューラーを別々のスレッドで開始
+    thread1 = threading.Thread(target=scheduler1.start)
+    thread2 = threading.Thread(target=scheduler2.start)
+
+    thread1.start()
+    thread2.start()
+
+    # 全てのスレッドが終了するまで待つ
+    thread1.join()
+    thread2.join()
 
 
 if __name__ == "__main__":
