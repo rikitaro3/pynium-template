@@ -4,7 +4,8 @@ import time
 
 class Scheduler:
     """_summary_
-    
+    指定間隔で実行する。
+    もしexec処理に5分以上かかった場合、終了後すぐに次の処理が開始される。
     
         Usage:
             def main():
@@ -40,3 +41,8 @@ class Scheduler:
         while True:
             schedule.run_pending()
             time.sleep(1)
+            
+    # def start(self):
+    #     while True:
+    #         self.scraper.exec()
+    #         time.sleep(self.interval * 60)  # intervalは分単位なので秒単位に変換

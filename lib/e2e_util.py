@@ -6,10 +6,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 import os
+import threading
 
 # mobile device setting
 # USE_MOBILE_DEVICE = "iPhone SE"
@@ -20,6 +22,7 @@ SCREENSHOT_DIR = "screenshot/"
 
 
 class Util:
+    driver_creation_lock = threading.Lock()
 
     @staticmethod
     def create_driver(is_chrome, is_headless=False):
@@ -39,51 +42,53 @@ class Util:
             create_driver(False,True) # ※使わない。通常のfirefox driverを返却
         """
 
-        if is_chrome:
-            chrome_options = ChromeOptions()
-            chrome_options.add_argument("--start-maximized")
-            chrome_options.add_experimental_option(
-                'excludeSwitches', ['enable-logging'])
+        with Util.driver_creation_lock:
+            if is_chrome:
+                chrome_options = ChromeOptions()
+                chrome_options.add_argument("--start-maximized")
+                chrome_options.add_experimental_option(
+                    "excludeSwitches", ["enable-logging"]
+                )
 
-            # headlessオプション設定
-            if is_headless:
-                chrome_options.add_argument('--headless')
-                chrome_options.add_argument('--no-sandbox')  # for docker
-                chrome_options.add_argument(
-                    '--disable-dev-shm-usage')  # for docker
+                # headlessオプション設定
+                if is_headless:
+                    chrome_options.add_argument("--headless")
+                    chrome_options.add_argument("--no-sandbox")  # for docker
+                    chrome_options.add_argument("--disable-dev-shm-usage")  # for docker
 
-            # ケース完了時にブラウザを閉じない
-            chrome_options.add_experimental_option("detach", True)
+                # ケース完了時にブラウザを閉じない
+                chrome_options.add_experimental_option("detach", True)
 
-            driver = webdriver.Chrome(
-                service=ChromeService(ChromeDriverManager().install()),
-                options=chrome_options
-            )
-        else:
-            firefox_options = FirefoxOptions()
-            firefox_options.add_argument("--start-maximized")
-            driver = webdriver.Firefox(
-                service=FirefoxService(GeckoDriverManager().install()),
-                options=firefox_options
-            )
+                driver = webdriver.Chrome(
+                    service=ChromeService(ChromeDriverManager().install()),
+                    options=chrome_options,
+                )
+            else:
+                firefox_options = FirefoxOptions()
+                firefox_options.add_argument("--start-maximized")
+                driver = webdriver.Firefox(
+                    service=FirefoxService(GeckoDriverManager().install()),
+                    options=firefox_options,
+                )
 
-        driver.implicitly_wait(10)
-        return driver
+            driver.implicitly_wait(10)
+            return driver
 
     @staticmethod
     def create_driver_with_mobile():
         chrome_options = ChromeOptions()
         chrome_options.add_argument(USE_MOBILE_DEVICE)
         driver = webdriver.Chrome(
-            ChromeDriverManager().install(), options=chrome_options)
+            ChromeDriverManager().install(), options=chrome_options
+        )
         driver.implicitly_wait(10)
 
         return driver
 
     @staticmethod
     def set_chrome_options_device(options, device_name):
-        mobile_emulation = {'deviceName': device_name}
-        options.add_experimental_option('mobileEmulation', mobile_emulation)
+        mobile_emulation = {"deviceName": device_name}
+        options.add_experimental_option("mobileEmulation", mobile_emulation)
         return options
 
     @staticmethod
@@ -93,30 +98,58 @@ class Util:
         if isinstance(driver, Chrome):
             screenshot = driver.get_screenshot_as_file(file_path + ".png")
         elif isinstance(driver, Firefox):
-            screenshot = driver.get_full_page_screenshot_as_file(
-                file_path + ".png")
+            screenshot = driver.get_full_page_screenshot_as_file(file_path + ".png")
         else:
             raise ValueError("Unsupported driver type")
+
+    @staticmethod
+    def count_elements_by_xpath(driver, xpath):
+        """指定されたXPathに一致する要素の数を返却する
+
+        Args:
+            driver (_type_): Selenium WebDriverのインスタンス
+            xpath (str): 要素を検索するためのXPath
+
+        Returns:
+            int: 指定されたXPathに一致する要素の数
+        """
+        elements = driver.find_elements(By.XPATH, xpath)
+        return len(elements)
+
+    @staticmethod
+    def count_table_records_by_xpath(driver, xpath):
+        """指定されたXPathに一致するテーブルのレコード数を返却する。ヘッダー行もカウントする。
+
+        Args:
+            driver (_type_): Selenium WebDriverのインスタンス
+            xpath (str): テーブルを検索するためのXPath
+
+        Returns:
+            int: 指定されたXPathに一致するテーブルのレコード数
+        """
+        table = driver.find_element(By.XPATH, xpath)
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        return len(rows)
 
     @staticmethod
     def convert_url(url, parameters):
         converted_url = url
         for parameter in parameters:
-            converted_url = converted_url.replaceFirst('\\{.*?\\}', parameter)
+            converted_url = converted_url.replaceFirst("\\{.*?\\}", parameter)
         return converted_url
 
     @staticmethod
     def save_formatted_html(html, file_name):
         # BeautifulSoupオブジェクトを作成
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, "html.parser")
 
         # フォーマットされたHTMLを保存
         formatted_html = soup.prettify()
 
         # tempフォルダが存在しない場合は作成
-        os.makedirs('temp', exist_ok=True)
+        os.makedirs("temp", exist_ok=True)
 
-        with open(os.path.join('temp', file_name), 'w', encoding='utf-8') as f:
+        with open(os.path.join("temp", file_name), "w", encoding="utf-8") as f:
             f.write(formatted_html)
 
     @staticmethod
@@ -126,35 +159,36 @@ class Util:
 
         Args:
             json_keyfile_name (_type_): _description_
-            
+
         Usage:
             from lib.e2e_util import Util
 
             # JSONキーファイル名を指定して関数を呼び出す
             Util.validate_json_keyfile('client_secret.json')
-        
+
         """
 
         try:
             # スコープを設定
-            scope = ['https://www.googleapis.com/auth/drive']
+            scope = ["https://www.googleapis.com/auth/drive"]
 
             # 認証情報を取得
             creds = ServiceAccountCredentials.from_json_keyfile_name(
-                json_keyfile_name, scope)
+                json_keyfile_name, scope
+            )
 
             # Google Driveサービスを作成
-            drive_service = build('drive', 'v3', credentials=creds)
+            drive_service = build("drive", "v3", credentials=creds)
 
             # Google Driveのファイルリストを取得
             results = drive_service.files().list(pageSize=10).execute()
-            items = results.get('files', [])
+            items = results.get("files", [])
 
-            print('Your client_secret.json is valid.')
-            print('Files in your Google Drive:')
+            print("Your client_secret.json is valid.")
+            print("Files in your Google Drive:")
             for item in items:
                 print(f'{item["name"]} ({item["id"]})')
 
         except Exception as e:
-            print('Your client_secret.json is not valid.')
-            print('Error:', e)
+            print("Your client_secret.json is not valid.")
+            print("Error:", e)

@@ -1,3 +1,4 @@
+import logging
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
@@ -22,10 +23,17 @@ class SpreadsheetWriter:
         self.creds = ServiceAccountCredentials.from_json_keyfile_name(
             json_keyfile_name, scope)
         self.client = gspread.authorize(self.creds)
+
+        # スプレッドシートが新規作成されたかどうかを示すフラグ
+        self.is_new = False
+        self.logger = logging.getLogger(__name__)
+
         try:
             self.sheet = self.client.open(spreadsheet_name).sheet1
         except gspread.SpreadsheetNotFound:
             self.sheet = self.client.create(spreadsheet_name).sheet1
+            self.is_new = True
+
         if folder_path:
             self.move_to_folder(spreadsheet_name, folder_path)
 
@@ -220,8 +228,35 @@ class SpreadsheetWriter:
             except HttpError as error:
                 print(f'An error occurred: {error}')
 
+    def delete_rows_by_column_value(self, column_name, value):
+        """
+        指定したカラムの値が指定した値に一致する行をスプレッドシートから削除します。
+
+        :param column_name: 値をチェックするカラムの名前
+        :param value: 削除する行のカラムの値
+        """
+        # スプレッドシートのヘッダー行を取得
+        header = self.sheet.row_values(1)
+        # 指定したカラム名のインデックスを取得
+        if column_name in header:
+            column_index = header.index(column_name)
+        else:
+            self.logger.debug(f"カラム'{column_name}'が見つかりませんでした。")
+            return
+
+        # スプレッドシートの全ての行を取得
+        rows = self.sheet.get_all_values()
+
+        # 指定したカラムの値が指定した値に一致する行を特定
+        rows_to_delete = [i for i, row in enumerate(rows, start=1) if row[column_index] == value]
+
+        # 一致する行を削除
+        if rows_to_delete:
+            self.sheet.delete_rows(min(rows_to_delete), max(rows_to_delete))
+
 
 if __name__ == "__main__":
-    writer = SpreadsheetWriter('client_secret.json', 'your_spreadsheet_name')
+    writer = SpreadsheetWriter('client_secret.json', 'your_sheet_name')
+    writer.delete('your_sheet_name')
     # writer.delete_all_spreadsheets()
     # writer.delete_all_folders()

@@ -1,12 +1,20 @@
+from lib.scheduler import Scheduler
+
+import logging
 import threading
 
-from lib.scheduler import Scheduler
-from my_site.my_scraper import MyScraper
+
+def init():
+    # ログレベルを設定
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
 
 def main():
     # スクレイパーのインスタンスを作成
-    scraper1 = MyScraper() # ※自身のプロジェクトではMyScraperを継承したクラスをインスタンス化する
+    scraper1 = (
+        MyScraper()
+    )  # ※自身のプロジェクトではMyScraperを継承したクラスをインスタンス化する
     scraper2 = MyScraper()
 
     # スケジューラーのインスタンスを作成
@@ -26,4 +34,5 @@ def main():
 
 
 if __name__ == "__main__":
+    init()
     main()

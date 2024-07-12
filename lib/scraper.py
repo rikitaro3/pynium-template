@@ -1,4 +1,4 @@
-from lib.case import Case
+import logging
 
 
 class Scraper:
@@ -13,8 +13,8 @@ class Scraper:
         * SchedulerクラスのメンバにこのScraperクラスが存在し、Schedulerがexecを叩く
     """
 
-    def __init__(self, case):
-        self.case = Case(case)
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
     def exec(self):
         raise NotImplementedError
